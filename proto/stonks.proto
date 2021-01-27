@@ -1,15 +1,28 @@
 syntax = "proto3";
+option go_package = "github.com/team-stonks/stonks-api;stonks_api";
+import "google/protobuf/timestamp.proto";
 
-service Greeter {
-  rpc SayHello (HelloRequest) returns (HelloReply) {}
-  rpc SayHelloAgain (HelloRequest) returns (HelloReply) {}
+service StonksApi {
+  rpc GetHistory (HistoryRequest) returns (HistoryResponse) {}
 }
 
-message HelloRequest {
-  string name = 1;
+message HistoryRequest {
+  string Figi = 1;
+  google.protobuf.Timestamp From = 2;
+  google.protobuf.Timestamp To = 3;
+  string Interval = 4;
 }
 
-message HelloReply {
-  string message = 1;
+message Candle {
+  double OpenPrice = 1;
+  double ClosePrice = 2;
+  double HighPrice = 3;
+  double LowPrice = 4;
+  double Volume = 5;
+  google.protobuf.Timestamp Time = 6;
+}
+
+message HistoryResponse {
+  repeated Candle Candles = 1;
 }
 
