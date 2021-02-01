@@ -22,16 +22,16 @@ func main() {
 	}
 	defer conn.Close()
 	c := pb.NewStonksApiClient(conn)
-	from := ptypes.TimestampNow()
-	to := time.Date(2020, time.January, 1, 0, 0, 0, 0, time.UTC)
-	toProto, err := ptypes.TimestampProto(to)
+	to := ptypes.TimestampNow()
+	from := time.Date(2020, time.December, 1, 0, 0, 0, 0, time.UTC)
+	fromProto, err := ptypes.TimestampProto(from)
 	if err != nil {
 		fmt.Println(err)
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
-	resp, err := c.GetHistory(ctx, &pb.HistoryRequest{Figi: "INTC", From: from, To: toProto, Interval: "week"})
+	resp, err := c.GetHistory(ctx, &pb.HistoryRequest{Figi: "BBG004S682J4", From: fromProto, To: to, Interval: "day"})
 	if err != nil {
 		log.Fatalf("could not greet: %v", err)
 	}
