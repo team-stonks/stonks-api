@@ -4,6 +4,7 @@ package stonks_api
 
 import (
 	context "context"
+	empty "github.com/golang/protobuf/ptypes/empty"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -18,7 +19,8 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type StonksApiClient interface {
-	GetHistory(ctx context.Context, in *HistoryRequest, opts ...grpc.CallOption) (*HistoryResponse, error)
+	TelegramNotification(ctx context.Context, in *TelegramRequest, opts ...grpc.CallOption) (*empty.Empty, error)
+	GetCompanyStats(ctx context.Context, in *CompanyStatsRequest, opts ...grpc.CallOption) (*CompanyStatsResponse, error)
 }
 
 type stonksApiClient struct {
@@ -29,9 +31,18 @@ func NewStonksApiClient(cc grpc.ClientConnInterface) StonksApiClient {
 	return &stonksApiClient{cc}
 }
 
-func (c *stonksApiClient) GetHistory(ctx context.Context, in *HistoryRequest, opts ...grpc.CallOption) (*HistoryResponse, error) {
-	out := new(HistoryResponse)
-	err := c.cc.Invoke(ctx, "/StonksApi/GetHistory", in, out, opts...)
+func (c *stonksApiClient) TelegramNotification(ctx context.Context, in *TelegramRequest, opts ...grpc.CallOption) (*empty.Empty, error) {
+	out := new(empty.Empty)
+	err := c.cc.Invoke(ctx, "/StonksApi/TelegramNotification", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *stonksApiClient) GetCompanyStats(ctx context.Context, in *CompanyStatsRequest, opts ...grpc.CallOption) (*CompanyStatsResponse, error) {
+	out := new(CompanyStatsResponse)
+	err := c.cc.Invoke(ctx, "/StonksApi/GetCompanyStats", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +53,8 @@ func (c *stonksApiClient) GetHistory(ctx context.Context, in *HistoryRequest, op
 // All implementations must embed UnimplementedStonksApiServer
 // for forward compatibility
 type StonksApiServer interface {
-	GetHistory(context.Context, *HistoryRequest) (*HistoryResponse, error)
+	TelegramNotification(context.Context, *TelegramRequest) (*empty.Empty, error)
+	GetCompanyStats(context.Context, *CompanyStatsRequest) (*CompanyStatsResponse, error)
 	mustEmbedUnimplementedStonksApiServer()
 }
 
@@ -50,8 +62,11 @@ type StonksApiServer interface {
 type UnimplementedStonksApiServer struct {
 }
 
-func (UnimplementedStonksApiServer) GetHistory(context.Context, *HistoryRequest) (*HistoryResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetHistory not implemented")
+func (UnimplementedStonksApiServer) TelegramNotification(context.Context, *TelegramRequest) (*empty.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method TelegramNotification not implemented")
+}
+func (UnimplementedStonksApiServer) GetCompanyStats(context.Context, *CompanyStatsRequest) (*CompanyStatsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCompanyStats not implemented")
 }
 func (UnimplementedStonksApiServer) mustEmbedUnimplementedStonksApiServer() {}
 
@@ -66,20 +81,38 @@ func RegisterStonksApiServer(s grpc.ServiceRegistrar, srv StonksApiServer) {
 	s.RegisterService(&StonksApi_ServiceDesc, srv)
 }
 
-func _StonksApi_GetHistory_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(HistoryRequest)
+func _StonksApi_TelegramNotification_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TelegramRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(StonksApiServer).GetHistory(ctx, in)
+		return srv.(StonksApiServer).TelegramNotification(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/StonksApi/GetHistory",
+		FullMethod: "/StonksApi/TelegramNotification",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(StonksApiServer).GetHistory(ctx, req.(*HistoryRequest))
+		return srv.(StonksApiServer).TelegramNotification(ctx, req.(*TelegramRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _StonksApi_GetCompanyStats_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CompanyStatsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(StonksApiServer).GetCompanyStats(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/StonksApi/GetCompanyStats",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(StonksApiServer).GetCompanyStats(ctx, req.(*CompanyStatsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -92,10 +125,14 @@ var StonksApi_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*StonksApiServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "GetHistory",
-			Handler:    _StonksApi_GetHistory_Handler,
+			MethodName: "TelegramNotification",
+			Handler:    _StonksApi_TelegramNotification_Handler,
+		},
+		{
+			MethodName: "GetCompanyStats",
+			Handler:    _StonksApi_GetCompanyStats_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "proto/stonks.proto",
+	Metadata: "stonks.proto",
 }

@@ -1,28 +1,43 @@
 syntax = "proto3";
 option go_package = "github.com/team-stonks/stonks-api;stonks_api";
-import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
 
 service StonksApi {
-  rpc GetHistory (HistoryRequest) returns (HistoryResponse) {}
+  rpc TelegramNotification (TelegramRequest) returns (google.protobuf.Empty) {}
+  rpc GetCompanyStats (CompanyStatsRequest) returns (CompanyStatsResponse) {}
 }
 
-message HistoryRequest {
+message TelegramRequest {
+  string Message = 1;
+}
+
+message CompanyStatsRequest {
   string Figi = 1;
-  google.protobuf.Timestamp From = 2;
-  google.protobuf.Timestamp To = 3;
-  string Interval = 4;
 }
 
-message Candle {
-  double OpenPrice = 1;
-  double ClosePrice = 2;
-  double HighPrice = 3;
-  double LowPrice = 4;
-  double Volume = 5;
-  google.protobuf.Timestamp Time = 6;
+message CompanyStatsResponse {
+  double EbitdaMargins           = 1;
+  double ProfitMargins           = 2;
+  double GrossMargins            = 3;
+  double OperatingCashflow       = 4;
+  double RevenueGrowth           = 5;
+  double OperatingMargins        = 6;
+  double Ebitda                  = 7;
+  double TargetLowPrice          = 8;
+  double GrossProfits            = 9;
+  double FreeCashflow            = 10;
+  double TargetMedianPrice       = 11;
+  double CurrentPrice            = 12;
+  double EarningsGrowth          = 13;
+  double CurrentRatio            = 14;
+  double ReturnOnAssets          = 15;
+  double NumberOfAnalystOpinions = 16;
+  double TargetMeanPrice         = 17;
+  double DebtToEquity            = 18;
+  double ReturnOnEquity          = 19;
+  double TargetHighPrice         = 20;
+  double TotalCash               = 21;
+  double TotalDebt               = 22;
+  double TotalRevenue            = 23;
+  double TotalCashPerShare       = 24;
 }
-
-message HistoryResponse {
-  repeated Candle Candles = 1;
-}
-
